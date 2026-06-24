@@ -55,7 +55,7 @@ export default function HomePage() {
         {category && !subCategory && "Select a sub-category"}
         <div className="space-y-4">
           {workers.map((worker) => (
-            <ProfessionalCard key={worker.id} professional={worker} />
+            <ProfessionalCard key={worker.id} professional={worker} subCategory={subCategory}/>
           ))}
         </div>
       </section>

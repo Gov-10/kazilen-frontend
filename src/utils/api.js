@@ -1,6 +1,6 @@
 import { getCookie} from "./customCookie";
 //"https://kazilen-prod-899213799870.asia-south1.run.app"
-//"http://localhost:8000/api/customer"
+//const BASE_URL = "http://localhost:8000/api/customer"
 
 const BASE_URL = "https://kazilen-prod-899213799870.asia-south1.run.app/api/customer"
 
@@ -11,7 +11,7 @@ export const apiRequest = async (endpoint, method = "Get", body = null) => {
 
 	let token = null;
 	if (typeof window !== "undefined") {
-		token = getCookie("session_token");
+		token = await getCookie("session_token");
 		if (token) {
 			headers["Authorization"] = `Bearer ${token}`;
 		}

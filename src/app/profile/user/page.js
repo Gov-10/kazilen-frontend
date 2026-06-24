@@ -1,214 +1,129 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import BackHeader from '../components/BackHeader' // keep this relative path if this file exists
-import { getUser, checkPhone, updateUser } from '@/app/lib/api'
-import { getCookie } from '@/utils/customCookie'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import BackHeader from "../components/BackHeader";
+import { getCookie } from "@/utils/customCookie";
+import { apiRequest } from "@/utils/api";
 
 export default function UserProfilePage() {
-  const router = useRouter()
+	const router = useRouter();
 
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [userId, setUserId] = useState(null)
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false);
 
-  // form state
-  const [phone, setPhone] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [dob, setDob] = useState('')       // yyyy-mm-dd
-  const [gender, setGender] = useState('') // MALE/FEMALE/OTHER
+	const [userId, setUserId] = useState(null);
+	const [phoneNo, setPhoneNo] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true)
+	const [name, setName] = useState("");
+	const [gender, setGender] = useState("");
+	const [address, setAddress] = useState("");
+	const [phone, setPhone] = useState("");
 
-        // try saved id first
-        const savedId = getCookie("userId") 
-        if (savedId) {
-          setUserId(savedId)
-          await fetchAndPopulate(savedId)
-          return
-        }
+	useEffect(() => {
+		async function load() {
+			try {
+				setLoading(true);
 
-        // fallback: try phone saved in localStorage
-        const savedPhone = localStorage.getItem('kazilen_user_phone')
-        if (savedPhone && savedPhone.match(/^\d{10}$/)) {
-          const res = await checkPhone(savedPhone)
-          if (res?.exists && res?.userId) {
-            localStorage.setItem('kazilen_user_id', String(res.userId))
-            setUserId(String(res.userId))
-            await fetchAndPopulate(res.userId)
-            return
-          } else {
-            // not found — force login
-            alert('Phone not found on server. Please login again.')
-            router.push('/login')
-            return
-          }
-        }
+				const userId = await getCookie("userId");
 
-        // nothing found — redirect to login
-        router.push('/login')
-      } catch (err) {
-        console.error('Failed to load user:', err)
-        alert('Failed to load profile. Please try again.')
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
-    }
+				const sessionToken = await getCookie("session_token");
 
-    load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+				if (userId && sessionToken) {
+					setUserId(userId);
+					await fetchAndPopulate(userId);
+				} else {
+					router.push("/login");
+				}
+			} catch (err) {
+				console.error("Failed to load user:", err);
+				alert("Failed to load profile. Please try again.");
+				router.push("/login");
+			} finally {
+				setLoading(false);
+			}
+		}
 
-  async function fetchAndPopulate(id) {
-    const data = await getUser(id)
-    if (!data) {
-      throw new Error('User not found')
-    }
-    setPhone(data.phone ?? '')
-    setName(data.name ?? '')
-    setEmail(data.email ?? '')
-    if (data.dob) {
-      const d = String(data.dob).split('T')[0]
-      setDob(d)
-    } else {
-      setDob('')
-    }
-    setGender(data.gender ?? '')
-  }
+		load();
+	}, [router]);
 
-  const handleSave = async () => {
-    if (!userId) {
-      alert('No user id found. Please re-login.')
-      router.push('/login')
-      return
-    }
-    if (!name.trim() || !dob || !gender) {
-      alert('Please fill name, date of birth and gender.')
-      return
-    }
+	async function fetchAndPopulate(id) {
+		const res = await apiRequest("/get-profile", "post", { userId: id });
+		const data = res?.data || res;
 
-    try {
-      setSaving(true)
-      const payload = {
-        phone, // include phone (optional to change)
-        name: name.trim(),
-        email: email || null,
-        dob, // yyyy-mm-dd
-        gender: gender ? gender.toUpperCase() : null,
-      }
+		if (!data) {
+			throw new Error("User not found");
+		}
+		setUserId(data.id || data.userId || null);
+		setName(data.name ?? "");
+		setGender(data.gender ?? "");
+		setAddress(data.address ?? "");
+		setPhone(data.phoneNo ?? "");
+	}
 
-      const updated = await updateUser(userId, payload)
-      if (payload.phone) localStorage.setItem('kazilen_user_phone', payload.phone)
-      alert('Profile updated successfully.')
-      if (updated) {
-        setName(updated.name ?? name)
-        setEmail(updated.email ?? email)
-        setDob(updated.dob ?? dob)
-        setGender(updated.gender ?? gender)
-      }
-    } catch (err) {
-      console.error(err)
-      const msg = err?.message || 'Update failed'
-      alert(`Update failed: ${msg}`)
-    } finally {
-      setSaving(false)
-    }
-  }
+	if (loading) {
+		return (
+			<div className="min-h-screen bg-white flex items-center justify-center">
+				<div className="text-gray-600">Loading profile…</div>
+			</div>
+		);
+	}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-gray-600">Loading profile…</div>
-      </div>
-    )
-  }
+	return (
+		<div className="min-h-screen bg-white">
+			<BackHeader />
 
-  return (
-    <div className="min-h-screen bg-white">
-      <BackHeader />
+			<div className="p-4 space-y-4">
+				<h2 className="text-lg font-semibold">Your profile</h2>
 
-      <div className="p-4 space-y-4">
-        <h2 className="text-lg font-semibold">Your profile</h2>
+				{/* Name */}
+				<div>
+					<label className="text-xs text-gray-500">Name</label>
+					<input
+						type="text"
+						value={name}
+						readOnly
+						className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+						placeholder="Your full name"
+					/>
+				</div>
 
-        {/* Phone (readonly) */}
-        <div>
-          <label className="text-xs text-gray-500">Phone</label>
-          <input
-            type="tel"
-            value={phone}
-            readOnly
-            className="w-full mt-1 px-3 py-2 border rounded-lg bg-gray-50 text-sm"
-          />
-        </div>
+				{/* Gender */}
+				<div>
+					<label className="text-xs text-gray-500">Gender</label>
+					<select
+						value={gender}
+						className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+					>
+						<option value="">Select</option>
+						<option value="M">Male</option>
+						<option value="F">Female</option>
+						<option value="O">Other</option>
+					</select>
+				</div>
 
-        {/* Name */}
-        <div>
-          <label className="text-xs text-gray-500">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-            placeholder="Your full name"
-          />
-        </div>
+				{/* Phone */}
+				<div>
+					<label className="text-xs text-gray-500">Phone Number</label>
+					<input
+						type="tel"
+						value={phone}
+						className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+						placeholder="Your phone number"
+					/>
+				</div>
 
-        {/* Email */}
-        <div>
-          <label className="text-xs text-gray-500">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-            placeholder="you@example.com (optional)"
-          />
-        </div>
-
-        {/* DOB */}
-        <div>
-          <label className="text-xs text-gray-500">Date of birth</label>
-          <input
-            type="date"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-          />
-        </div>
-
-        {/* Gender */}
-        <div>
-          <label className="text-xs text-gray-500">Gender</label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-          >
-            <option value="">Select</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
-          </select>
-        </div>
-
-        <div className="pt-2">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`w-full py-3 rounded-xl font-medium ${
-              saving ? 'bg-gray-300 text-gray-700 cursor-not-allowed' : 'bg-yellow-400 hover:bg-yellow-500 text-black'
-            }`}
-          >
-            {saving ? 'Saving…' : 'Save changes'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+				{/* Address */}
+				<div>
+					<label className="text-xs text-gray-500">Address</label>
+					<textarea
+						value={address}
+						className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+						placeholder="Your residential address"
+						rows={3}
+					/>
+				</div>
+			</div>
+		</div>
+	);
 }
