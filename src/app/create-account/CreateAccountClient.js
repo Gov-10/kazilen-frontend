@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter} from "next/navigation";
 import { apiRequest } from "../../utils/api";
-import { setCookie } from "@/utils/customCookie";
+import Cookies from 'js-cookie'
 
 export default function CreateAccountClient({ phoneFromQuery }) {
 	const router = useRouter();
@@ -51,7 +51,7 @@ export default function CreateAccountClient({ phoneFromQuery }) {
 			const created = await apiRequest("/create-account", "POST", payload);
 
 			if (created?.id) {
-				setCookie("userId", String(created.id));
+				Cookies.set("userId", String(created.id));
 			}
 
 			alert("Account created successfully!");

@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import { apiRequest } from "../../utils/api";
 import { setCookie } from "@/utils/customCookie";
+import Cookies from "js-cookie";
 
 export default function VerifyOtpClient() {
 	const router = useRouter();
@@ -55,9 +56,9 @@ export default function VerifyOtpClient() {
 			});
 			if (response?.success) {
 				const result = await apiRequest("/check", "POST", { phone });
-				setCookie("session_token", response.session);
+				Cookies.set("session_token", response.session);
 				if (result?.exists) {
-					setCookie("userId", result.id);
+					Cookies.set("userId", result.userId);
 					router.push("/");
 				} else {
 					router.push(`/create-account?phone=${encodeURIComponent(phone)}`);
