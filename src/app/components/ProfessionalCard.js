@@ -91,7 +91,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 
 					{/* Description */}
 					<p className="text-sm text-gray-600 mt-2 line-clamp-2">
-						{professional.sub_category.subCategory.description ||
+						{rofessional?.sub_category?.subCategory?.description ||
 							"Experienced and reliable professional offering top-quality service."}
 					</p>
 
