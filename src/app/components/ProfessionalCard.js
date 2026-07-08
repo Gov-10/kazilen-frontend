@@ -12,6 +12,7 @@ import { getCookie } from "@/utils/customCookie";
 export default function ProfessionalCard({ professional, subCategory }) {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [showProfile, setShowProfile] = useState(false);
+	const [price, setPrice] = useState(professional?.sub_category?.[subCategory]?.price);
 	const router = useRouter();
 	const cardRef = useRef(null);
 
@@ -106,8 +107,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 						<div className="flex flex-col items-end">
 							<p className="text-sm font-semibold text-pink-600">
 								₹
-								{professional?.sub_category?.[subCategory]?.price ??
-									professional?.price ??
+								{ price ??
 									"250"}{" "}
 								/ hour
 							</p>
@@ -135,8 +135,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 							for{" "}
 							<span className="font-semibold text-pink-600">
 								₹
-								{professional?.sub_category?.[subCategory]?.price ??
-									professional?.price ??
+								{price ??
 									"250"}
 								hour
 							</span>
@@ -213,8 +212,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 							</p>
 							<p>
 								<b>Price:</b> ₹
-								{professional?.sub_category?.[subCategory]?.price ??
-									professional?.price ??
+								{price ??
 									"250"}
 								hour
 							</p>
