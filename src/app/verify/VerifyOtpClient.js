@@ -5,9 +5,9 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import { apiRequest } from "../../utils/api";
 import { setCookie } from "@/utils/customCookie";
+import Cookies from "js-cookie";
 
 export default function VerifyOtpClient() {
-
 	const router = useRouter();
 	const params = useSearchParams();
 	const phone = params.get("phone");
@@ -54,16 +54,15 @@ export default function VerifyOtpClient() {
 				phone: `91${phone}`,
 				otp: fullOtp,
 			});
-			setCookie("session_token", response.session_token)
 			if (response?.success) {
 				const result = await apiRequest("/check", "POST", { phone });
-
-				if (result.status == 404) {
-					router.push(`/create-account?phone=${encodeURIComponent(phone)}`);
-				} else if (result.exists) {
-					setCookie("userId", result.id)
+				Cookies.set("session_token", response.session);
+				if (result?.exists) {
+					Cookies.set("userId", result.userId);
 					router.push("/");
-				}
+				} else {
+					router.push(`/create-account?phone=${encodeURIComponent(phone)}`);
+				} 
 			}
 		} catch (e) {
 			alert(`OTP verification failed: ${e.message}`);
@@ -73,11 +72,9 @@ export default function VerifyOtpClient() {
 	};
 
 	const handleResend = async () => {
-
 		if (!resendEnabled) return;
 
 		try {
-
 			setResending(true);
 
 			await apiRequest("/send-otp", "POST", { phone });
@@ -87,18 +84,14 @@ export default function VerifyOtpClient() {
 			setOtpDigits(["", "", "", "", "", ""]);
 
 			inputRefs.current[0]?.focus();
-
 		} catch (e) {
-
 			alert(`Failed to resend OTP: ${e.message}`);
-
 		} finally {
 			setResending(false);
 		}
 	};
 
 	useEffect(() => {
-
 		if (seconds <= 0) {
 			setResendEnabled(true);
 			return;
@@ -109,7 +102,6 @@ export default function VerifyOtpClient() {
 		}, 1000);
 
 		return () => clearInterval(timer);
-
 	}, [seconds]);
 
 	const formatTime = (sec) => {
@@ -123,7 +115,6 @@ export default function VerifyOtpClient() {
 
 	return (
 		<div className="min-h-screen bg-white px-6 py-4">
-
 			<button onClick={handleBack} className="mb-4">
 				<ArrowLeft size={28} />
 			</button>
@@ -158,7 +149,6 @@ export default function VerifyOtpClient() {
 			</div>
 
 			<div className="flex justify-between items-center text-sm mt-2">
-
 				<span>
 					Did not get OTP?{" "}
 					<button
@@ -172,7 +162,6 @@ export default function VerifyOtpClient() {
 				</span>
 
 				<span className="font-mono">{formatTime(seconds)}</span>
-
 			</div>
 
 			<button
@@ -183,7 +172,6 @@ export default function VerifyOtpClient() {
 			>
 				{loading ? "Verifying…" : "Verify"}
 			</button>
-
 		</div>
 	);
 }

@@ -1,62 +1,65 @@
-'use client'
+"use client";
 
-import { useState, useRef } from 'react'
-import Image from 'next/image'
-import { Star, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useMutation } from '@tanstack/react-query'
-import { bookService } from '../../lib/api'
-import { apiRequest } from '@/utils/api'
-import { getCookie } from '@/utils/customCookie'
+import { useState, useRef } from "react";
+import Image from "next/image";
+import { Star, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { bookService } from "../../lib/api";
+import { apiRequest } from "@/utils/api";
+import { getCookie } from "@/utils/customCookie";
 
 export default function ProfessionalCard({ professional, subCategory }) {
-	const [showConfirm, setShowConfirm] = useState(false)
-	const [showProfile, setShowProfile] = useState(false)
-	const router = useRouter()
-	const cardRef = useRef(null)
-	const userId = getCookie('userId')
+	const [showConfirm, setShowConfirm] = useState(false);
+	const [showProfile, setShowProfile] = useState(false);
+	const router = useRouter();
+	const cardRef = useRef(null);
 
 	const openConfirm = () => {
-		setShowConfirm(true)
-	}
+		setShowConfirm(true);
+	};
 
-	const cancelBooking = () => setShowConfirm(false)
-	const handleViewProfile = () => setShowProfile(true)
-	const closeProfile = () => setShowProfile(false)
+	const cancelBooking = () => setShowConfirm(false);
+	const handleViewProfile = () => setShowProfile(true);
+	const closeProfile = () => setShowProfile(false);
 
 	const mutation = useMutation({
 		mutationFn: (data) => bookService(data),
 		onSuccess: () => {
-			setShowConfirm(false)
-			router.push('/booking-status')
+			setShowConfirm(false);
+			router.push("/booking-status");
 		},
 		onError: (error) => {
-			console.error('Booking failed, storing for background sync:', error)
-			setShowConfirm(false)
-			router.push('/booking-status')
-		}
-	})
+			console.error("Booking failed, storing for background sync:", error);
+			setShowConfirm(false);
+			router.push("/booking-status");
+		},
+	});
 
-	const confirmBooking = () => {
+	const confirmBooking = async () => {
+		const userId = await getCookie("userId");
 		const block = {
 			worker: professional.id,
-			customer:userId,
+			customer: userId,
 			action: subCategory,
-		}
-		apiRequest('/requestBooking', 'post', block)
+		};
+		await apiRequest("/requestBooking", "post", block);
 		mutation.mutate({
-			professionalId: professional.id || 'temp-id',
+			professionalId: professional.id || "temp-id",
 			professionalName: professional.name,
-			price: professional?.sub_category?.[subCategory]?.price ?? professional?.price ?? '250'
-		})
-	}
+			price:
+				professional?.sub_category?.[subCategory]?.price ??
+				professional?.price ??
+				"250",
+		});
+	};
 
 	return (
 		<div ref={cardRef} className="w-full relative">
 			{/* Card */}
 			<div className="flex items-start gap-4 border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all bg-white mb-3">
 				<Image
-					src={professional.image || '/default-user.png'}
+					src={professional.image || "/default-user.png"}
 					alt={professional.name}
 					width={150}
 					height={150}
@@ -75,14 +78,14 @@ export default function ProfessionalCard({ professional, subCategory }) {
 								{professional.name}
 							</h3>
 							<p className="text-sm text-gray-500">
-								{professional.skill || 'Service Provider'}
+								{professional.skill || "Service Provider"}
 							</p>
 						</div>
 
 						<div className="flex items-center bg-yellow-50 px-2 py-1 rounded-md">
 							<Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
 							<span className="ml-1 text-sm font-medium text-gray-700">
-								{professional.rating || '4.5'}
+								{professional.rating || "4.5"}
 							</span>
 						</div>
 					</div>
@@ -90,7 +93,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 					{/* Description */}
 					<p className="text-sm text-gray-600 mt-2 line-clamp-2">
 						{professional.description ||
-							'Experienced and reliable professional offering top-quality service.'}
+							"Experienced and reliable professional offering top-quality service."}
 					</p>
 
 					{/* Actions */}
@@ -104,7 +107,11 @@ export default function ProfessionalCard({ professional, subCategory }) {
 
 						<div className="flex flex-col items-end">
 							<p className="text-sm font-semibold text-pink-600">
-								₹{professional?.sub_category?.subCategory?.price ?? professional?.price ?? '250'} / hour
+								₹
+								{professional?.sub_category?.subCategory?.price ??
+									professional?.price ??
+									"250"}{" "}
+								/ hour
 							</p>
 							<button
 								onClick={openConfirm}
@@ -126,9 +133,14 @@ export default function ProfessionalCard({ professional, subCategory }) {
 						</h3>
 
 						<p className="text-sm text-gray-600 mt-3 text-center">
-							Book <span className="font-semibold">{professional.name}</span> for{' '}
+							Book <span className="font-semibold">{professional.name}</span>{" "}
+							for{" "}
 							<span className="font-semibold text-pink-600">
-								₹{professional?.sub_category?.[subCategory]?.price ?? professional?.price ?? '250'}hour
+								₹
+								{professional?.sub_category?.[subCategory]?.price ??
+									professional?.price ??
+									"250"}
+								hour
 							</span>
 							?
 						</p>
@@ -145,7 +157,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 								disabled={mutation.isPending}
 								className="flex-1 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition disabled:opacity-50"
 							>
-								{mutation.isPending ? 'Booking...' : 'Confirm'}
+								{mutation.isPending ? "Booking..." : "Confirm"}
 							</button>
 						</div>
 					</div>
@@ -165,7 +177,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 
 						<div className="flex flex-col items-center text-center">
 							<Image
-								src={professional.image || '/default-user.png'}
+								src={professional.image || "/default-user.png"}
 								alt={professional.name}
 								width={300}
 								height={300}
@@ -179,25 +191,35 @@ export default function ProfessionalCard({ professional, subCategory }) {
 								{professional.name}
 							</h2>
 							<p className="text-sm text-gray-500">
-								{professional.skill || 'Service Provider'}
+								{professional.skill || "Service Provider"}
 							</p>
 
 							<div className="flex items-center justify-center mt-2">
 								<Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
 								<span className="ml-1 text-sm text-gray-700">
-									{professional.rating || '4.5'}
+									{professional.rating || "4.5"}
 								</span>
 								<span className="ml-2 text-xs text-gray-400">
-									({professional.reviews || '120'} reviews)
+									({professional.reviews || "120"} reviews)
 								</span>
 							</div>
 						</div>
 
 						<div className="mt-4 border-t pt-4 text-sm text-gray-600 space-y-2">
 							<p>{professional.description}</p>
-							<p><b>Experience:</b> {professional.experience || '2+ years'}</p>
-							<p><b>Location:</b> {professional.location || 'Nearby'}</p>
-							<p><b>Price:</b> ₹{professional?.sub_category?.[subCategory]?.price ?? professional?.price ?? '250'}hour</p>
+							<p>
+								<b>Experience:</b> {professional.experience || "2+ years"}
+							</p>
+							<p>
+								<b>Location:</b> {professional.location || "Nearby"}
+							</p>
+							<p>
+								<b>Price:</b> ₹
+								{professional?.sub_category?.[subCategory]?.price ??
+									professional?.price ??
+									"250"}
+								hour
+							</p>
 						</div>
 
 						<div className="flex justify-center gap-3 mt-5">
@@ -209,8 +231,8 @@ export default function ProfessionalCard({ professional, subCategory }) {
 							</button>
 							<button
 								onClick={() => {
-									closeProfile()
-									openConfirm()
+									closeProfile();
+									openConfirm();
 								}}
 								className="px-4 py-2 rounded-lg text-sm bg-pink-500 text-white"
 							>
@@ -221,5 +243,5 @@ export default function ProfessionalCard({ professional, subCategory }) {
 				</div>
 			)}
 		</div>
-	)
+	);
 }
