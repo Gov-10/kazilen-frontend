@@ -12,7 +12,7 @@ export const apiRequest = async (endpoint, method = "Get", body = null) => {
 	let token = null;
 	if (typeof window !== "undefined") {
 		token = await getCookie("session_token");
-		if (token) {
+		if (token && token !== "undefined" && token !== "null") {
 			headers["Authorization"] = `Bearer ${token}`;
 		}
 	}
