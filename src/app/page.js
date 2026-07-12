@@ -7,62 +7,75 @@ import ProfessionalCard from "./components/ProfessionalCard";
 import { apiRequest } from "@/utils/api";
 
 export default function HomePage() {
-  const [category, setCategory] = useState("");
-  const [subCategory, setSubCategory] = useState("");
+	const [category, setCategory] = useState("");
+	const [subCategory, setSubCategory] = useState("");
 
-  const [workers, setWorkers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+	const [workers, setWorkers] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    async function fetchWorkers() {
-      if (!subCategory) {
-        setWorkers([]);
-        return;
-      }
+	useEffect(() => {
+		async function fetchWorkers() {
+			if (!subCategory) {
+				setWorkers([]);
+				return;
+			}
 
-      setIsLoading(true);
-      try {
-        const response = await apiRequest(`/filterworker?category=${subCategory}`);
-        setWorkers(Array.isArray(response) ? response : []);
-      } catch (error) {
-        console.error("Failed to fetch workers:", error);
-        setWorkers([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+			setIsLoading(true);
+			try {
+				const response = await apiRequest(
+					`/filterworker?category=${subCategory}`,
+				);
+				setWorkers(Array.isArray(response) ? response : []);
+			} catch (error) {
+				console.error("Failed to fetch workers:", error);
+				setWorkers([]);
+			} finally {
+				setIsLoading(false);
+			}
+		}
 
-    fetchWorkers();
-  }, [subCategory]);
+		fetchWorkers();
+	}, [subCategory]);
 
-  return (
-    <main className="min-h-screen bg-gray-50 pb-20">
-      {/* Category */}
-      <CategoryTabs
-        value={category}
-        onChange={(val) => {
-          setCategory(val);
-          setSubCategory("");
-        }}
-      />
+	return (
+		<main className="min-h-screen bg-gray-50 pb-20">
+			{/* Category */}
+			<CategoryTabs
+				value={category}
+				onChange={(val) => {
+					setCategory(val);
+					setSubCategory("");
+				}}
+			/>
 
-      {/* Sub Category */}
-      {category && (
-        <SubCategoryTabs value={subCategory} onChange={setSubCategory} />
-      )}
+			{/* Sub Category */}
+			{category && (
+				<SubCategoryTabs value={subCategory} onChange={setSubCategory} />
+			)}
 
-      {/* Workers list */}
-      <section className="px-4 mt-6 text-center text-gray-500">
-        {category && !subCategory && "Select a sub-category"}
-        {subCategory && !isLoading && workers.length === 0 && (
-          <p className="mt-4 text-gray-400">No workers found for this category.</p>
-        )}
-        <div className="space-y-4">
-          {workers.map((worker) => (
-            <ProfessionalCard key={worker.id} professional={worker} subCategory={subCategory}/>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
+			{/* Workers list */}
+			<section className="px-4 mt-6 text-center text-gray-500">
+				{category && !subCategory && "Select a sub-category"}
+
+				{subCategory && !isLoading && workers?.length === 0 && (
+					<p className="mt-4 text-gray-400">
+						No workers found for this category.
+					</p>
+				)}
+
+				{/* Only render the container and map if workers exist */}
+				{workers && workers.length > 0 && (
+					<div className="space-y-4">
+						{workers.map((worker) => (
+							<ProfessionalCard
+								key={worker.id}
+								professional={worker}
+								subCategory={subCategory}
+							/>
+						))}
+					</div>
+				)}
+			</section>
+		</main>
+	);
 }

@@ -43,25 +43,6 @@ export default function LoginPage() {
 		if (digitsOnly.length <= 10) setPhone(digitsOnly);
 	};
 
-	const handleCreate = async () => {
-		if (!acceptedTerms) {
-			alert("Please accept Terms of Condition");
-			return;
-		}
-		try {
-			setLoading(true);
-			const fphone = `91${phone}`;
-			await apiRequest("/customer/send-otp", "POST", { phone: fphone });
-			router.push(
-				`/verify?phone=${encodeURIComponent(phone)}`,
-			);
-		} catch (e) {
-			alert(`Failed to check phone: ${e?.message ?? e}`);
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	return (
 		<div className="min-h-screen flex flex-col justify-center items-center px-6 bg-white relative">
 			<h1 className="text-3xl font-bold mb-2">Kazilen</h1>
