@@ -1,8 +1,8 @@
 import { getCookie} from "./customCookie";
-//"https://kazilen-prod-899213799870.asia-south1.run.app"
-//const BASE_URL = "http://localhost:8000/api/customer"
 
-const BASE_URL = "https://kazilen-prod-899213799870.asia-south1.run.app/api/customer"
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api/customer`
+  : "https://kazilen-prod-899213799870.asia-south1.run.app/api/customer";
 
 export const apiRequest = async (endpoint, method = "Get", body = null) => {
 	const headers = {
@@ -12,7 +12,7 @@ export const apiRequest = async (endpoint, method = "Get", body = null) => {
 	let token = null;
 	if (typeof window !== "undefined") {
 		token = await getCookie("session_token");
-		if (token) {
+		if (token && token !== "undefined" && token !== "null") {
 			headers["Authorization"] = `Bearer ${token}`;
 		}
 	}

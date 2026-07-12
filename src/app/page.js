@@ -23,9 +23,10 @@ export default function HomePage() {
       setIsLoading(true);
       try {
         const response = await apiRequest(`/filterworker?category=${subCategory}`);
-        setWorkers(response);
+        setWorkers(Array.isArray(response) ? response : []);
       } catch (error) {
         console.error("Failed to fetch workers:", error);
+        setWorkers([]);
       } finally {
         setIsLoading(false);
       }
@@ -50,9 +51,12 @@ export default function HomePage() {
         <SubCategoryTabs value={subCategory} onChange={setSubCategory} />
       )}
 
-      {/* Placeholder UI (pure frontend) */}
+      {/* Workers list */}
       <section className="px-4 mt-6 text-center text-gray-500">
         {category && !subCategory && "Select a sub-category"}
+        {subCategory && !isLoading && workers.length === 0 && (
+          <p className="mt-4 text-gray-400">No workers found for this category.</p>
+        )}
         <div className="space-y-4">
           {workers.map((worker) => (
             <ProfessionalCard key={worker.id} professional={worker} subCategory={subCategory}/>

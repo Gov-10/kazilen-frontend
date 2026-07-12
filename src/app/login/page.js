@@ -96,23 +96,6 @@ export default function LoginPage() {
 				</button>
 			</div>
 
-			{/* Shortcut buttons */}
-			<div className="mt-6 w-full max-w-sm flex gap-3">
-				<button
-					onClick={() => router.push("/")}
-					className="w-1/2 border border-gray-400 py-2 rounded-xl font-medium hover:bg-gray-100"
-				>
-					Login → Home
-				</button>
-
-				<button
-					onClick={handleCreate}
-					className="w-1/2 border border-gray-400 py-2 rounded-xl font-medium hover:bg-gray-100"
-				>
-					Create Account
-				</button>
-			</div>
-
 			{/* Terms checkbox */}
 			<div className="flex items-start gap-2 mt-4 max-w-sm">
 				<input

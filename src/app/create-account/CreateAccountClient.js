@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter} from "next/navigation";
 import { apiRequest } from "../../utils/api";
+import { setCookie } from "@/utils/customCookie";
+import { useAuth } from "@/context/AuthContext";
 import Cookies from 'js-cookie'
 
 export default function CreateAccountClient({ phoneFromQuery }) {
 	const router = useRouter();
+	const { refreshAuth } = useAuth();
 	const [phoneNo, setPhone] = useState(phoneFromQuery)
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -56,6 +59,7 @@ export default function CreateAccountClient({ phoneFromQuery }) {
 
 			alert("Account created successfully!");
 
+			await refreshAuth();
 			router.replace("/");
 		} catch (err) {
 			alert(`Create failed: ${err?.message || "Something went wrong"}`);

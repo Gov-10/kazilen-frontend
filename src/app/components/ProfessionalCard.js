@@ -12,7 +12,6 @@ import { getCookie } from "@/utils/customCookie";
 export default function ProfessionalCard({ professional, subCategory }) {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [showProfile, setShowProfile] = useState(false);
-	const [price, setPrice] = useState(professional?.sub_category?.[subCategory]?.price);
 	const router = useRouter();
 	const cardRef = useRef(null);
 
@@ -49,7 +48,9 @@ export default function ProfessionalCard({ professional, subCategory }) {
 			professionalId: professional.id || "temp-id",
 			professionalName: professional.name,
 			price:
-				professional?.sub_category?.[subCategory]?.price
+				professional?.sub_category?.[subCategory]?.price ??
+				professional?.price ??
+				"250",
 		});
 	};
 
@@ -58,7 +59,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 			{/* Card */}
 			<div className="flex items-start gap-4 border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all bg-white mb-3">
 				<Image
-					src={"/default-user.png"}
+					src={professional.image || "/default-user.png"}
 					alt={professional.name}
 					width={150}
 					height={150}
@@ -77,7 +78,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 								{professional.name}
 							</h3>
 							<p className="text-sm text-gray-500">
-								{subCategory || "Service Provider"}
+								{professional.skill || "Service Provider"}
 							</p>
 						</div>
 
@@ -91,7 +92,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 
 					{/* Description */}
 					<p className="text-sm text-gray-600 mt-2 line-clamp-2">
-						{rofessional?.sub_category?.subCategory?.description ||
+						{professional.description ||
 							"Experienced and reliable professional offering top-quality service."}
 					</p>
 
@@ -107,7 +108,8 @@ export default function ProfessionalCard({ professional, subCategory }) {
 						<div className="flex flex-col items-end">
 							<p className="text-sm font-semibold text-pink-600">
 								₹
-								{price ??
+								{professional?.sub_category?.subCategory?.price ??
+									professional?.price ??
 									"250"}{" "}
 								/ hour
 							</p>
@@ -135,7 +137,8 @@ export default function ProfessionalCard({ professional, subCategory }) {
 							for{" "}
 							<span className="font-semibold text-pink-600">
 								₹
-								{price ??
+								{professional?.sub_category?.[subCategory]?.price ??
+									professional?.price ??
 									"250"}
 								hour
 							</span>
@@ -212,7 +215,8 @@ export default function ProfessionalCard({ professional, subCategory }) {
 							</p>
 							<p>
 								<b>Price:</b> ₹
-								{price ??
+								{professional?.sub_category?.[subCategory]?.price ??
+									professional?.price ??
 									"250"}
 								hour
 							</p>
