@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Star, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -13,15 +13,9 @@ export default function ProfessionalCard({ professional, subCategory }) {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [showProfile, setShowProfile] = useState(false);
 	const router = useRouter();
-	const cardRef = useRef(null);
 
-	const openConfirm = () => {
-		setShowConfirm(true);
-	};
-
-	const cancelBooking = () => setShowConfirm(false);
-	const handleViewProfile = () => setShowProfile(true);
-	const closeProfile = () => setShowProfile(false);
+	const price = professional.sub_categories?.price ?? 120;
+	const details = professional.sub_categories?.details ?? "";
 
 	const mutation = useMutation({
 		mutationFn: (data) => bookService(data),
@@ -30,9 +24,8 @@ export default function ProfessionalCard({ professional, subCategory }) {
 			router.push("/booking-status");
 		},
 		onError: (error) => {
-			console.error("Booking failed, storing for background sync:", error);
+			console.error("Booking failed:", error);
 			setShowConfirm(false);
-			router.push("/booking-status");
 		},
 	});
 
@@ -45,77 +38,46 @@ export default function ProfessionalCard({ professional, subCategory }) {
 		};
 		await apiRequest("/requestBooking", "post", block);
 		mutation.mutate({
-			professionalId: professional.id || "temp-id",
+			professionalId: professional.id,
 			professionalName: professional.name,
-			price:
-				professional?.sub_category?.[subCategory]?.price ??
-				professional?.price ??
-				"250",
+			price: price,
 		});
 	};
 
 	return (
-		<div ref={cardRef} className="w-full relative">
-			{/* Card */}
-			<div className="flex items-start gap-4 border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all bg-white mb-3">
-				<Image
-					src={professional.image || "/default-user.png"}
-					alt={professional.name}
-					width={150}
-					height={150}
-					placeholder="blur"
-					blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-					sizes="(max-width: 768px) 150px, 150px"
-					quality={75}
-					className="w-[90px] h-[90px] sm:w-[150px] sm:h-[150px] rounded-xl object-cover flex-shrink-0"
-				/>
-
-				<div className="flex flex-col flex-1 justify-between">
-					{/* Header */}
+		<div className="w-full relative">
+			<div className="flex items-start gap-4 border rounded-2xl p-4 shadow-sm bg-white mb-3">
+				<div className="flex flex-col flex-1">
 					<div className="flex justify-between items-start">
-						<div>
-							<h3 className="text-base font-semibold text-gray-800">
-								{professional.name}
-							</h3>
-							<p className="text-sm text-gray-500">
-								{professional.skill || "Service Provider"}
-							</p>
-						</div>
-
+						<h3 className="text-base font-semibold text-gray-800">
+							{professional.name}
+						</h3>
 						<div className="flex items-center bg-yellow-50 px-2 py-1 rounded-md">
 							<Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
 							<span className="ml-1 text-sm font-medium text-gray-700">
-								{professional.rating || "4.5"}
+								{professional.rating}
 							</span>
 						</div>
 					</div>
 
-					{/* Description */}
-					<p className="text-sm text-gray-600 mt-2 line-clamp-2">
-						{professional.description ||
-							"Experienced and reliable professional offering top-quality service."}
+					<p className="text-sm text-gray-600 mt-2">
+						{professional.description}
 					</p>
 
-					{/* Actions */}
 					<div className="flex justify-between items-end mt-3 gap-2">
 						<button
-							onClick={handleViewProfile}
-							className="px-3 py-1.5 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+							onClick={() => setShowProfile(true)}
+							className="px-3 py-1.5 text-sm rounded-lg bg-gray-100 text-gray-700"
 						>
 							View Profile
 						</button>
-
 						<div className="flex flex-col items-end">
 							<p className="text-sm font-semibold text-pink-600">
-								₹
-								{professional?.sub_category?.subCategory?.price ??
-									professional?.price ??
-									"250"}{" "}
-								/ hour
+								₹{price} / hour
 							</p>
 							<button
-								onClick={openConfirm}
-								className="mt-1 px-3 py-1.5 text-sm rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition"
+								onClick={() => setShowConfirm(true)}
+								className="mt-1 px-3 py-1.5 text-sm rounded-lg bg-pink-500 text-white"
 							>
 								Book Now
 							</button>
@@ -124,38 +86,28 @@ export default function ProfessionalCard({ professional, subCategory }) {
 				</div>
 			</div>
 
-			{/* ✅ Confirm Booking Popup — CENTERED */}
+			{/* Confirm Booking Popup */}
 			{showConfirm && (
 				<div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-					<div className="bg-white w-[90%] max-w-sm rounded-2xl p-6 shadow-lg animate-[fadeIn_0.2s_ease-out]">
-						<h3 className="text-lg font-semibold text-gray-800 text-center">
+					<div className="bg-white w-[90%] max-w-sm rounded-2xl p-6">
+						<h3 className="text-lg font-semibold text-center">
 							Confirm Booking
 						</h3>
-
 						<p className="text-sm text-gray-600 mt-3 text-center">
-							Book <span className="font-semibold">{professional.name}</span>{" "}
-							for{" "}
-							<span className="font-semibold text-pink-600">
-								₹
-								{professional?.sub_category?.[subCategory]?.price ??
-									professional?.price ??
-									"250"}
-								hour
-							</span>
-							?
+							Book {professional.name} for{" "}
+							<span className="font-semibold text-pink-600">₹{price}</span>?
 						</p>
-
 						<div className="flex gap-3 mt-6">
 							<button
-								onClick={cancelBooking}
-								className="flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+								onClick={() => setShowConfirm(false)}
+								className="flex-1 py-2 rounded-lg bg-gray-200"
 							>
 								Cancel
 							</button>
 							<button
 								onClick={confirmBooking}
 								disabled={mutation.isPending}
-								className="flex-1 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition disabled:opacity-50"
+								className="flex-1 py-2 rounded-lg bg-pink-500 text-white"
 							>
 								{mutation.isPending ? "Booking..." : "Confirm"}
 							</button>
@@ -166,78 +118,32 @@ export default function ProfessionalCard({ professional, subCategory }) {
 
 			{/* Profile Popup */}
 			{showProfile && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 overflow-y-auto">
-					<div className="bg-white rounded-2xl shadow-lg w-[90%] max-w-md p-6 relative">
+				<div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+					<div className="bg-white rounded-2xl w-[90%] max-w-md p-6 relative">
 						<button
-							onClick={closeProfile}
-							className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+							onClick={() => setShowProfile(false)}
+							className="absolute top-3 right-3"
 						>
 							<X className="w-5 h-5" />
 						</button>
-
-						<div className="flex flex-col items-center text-center">
-							<Image
-								src={professional.image || "/default-user.png"}
-								alt={professional.name}
-								width={300}
-								height={300}
-								placeholder="blur"
-								blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-								sizes="(max-width: 768px) 80vw, 300px"
-								quality={85}
-								className="w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full object-cover mb-3"
-							/>
-							<h2 className="text-lg font-semibold text-gray-800">
-								{professional.name}
-							</h2>
-							<p className="text-sm text-gray-500">
-								{professional.skill || "Service Provider"}
-							</p>
-
-							<div className="flex items-center justify-center mt-2">
-								<Star className="w-4 h-4 text-yellow-500 fill-yellow-400" />
-								<span className="ml-1 text-sm text-gray-700">
-									{professional.rating || "4.5"}
-								</span>
-								<span className="ml-2 text-xs text-gray-400">
-									({professional.reviews || "120"} reviews)
-								</span>
-							</div>
-						</div>
-
-						<div className="mt-4 border-t pt-4 text-sm text-gray-600 space-y-2">
+						<h2 className="text-lg font-semibold">{professional.name}</h2>
+						<div className="mt-4 text-sm text-gray-600 space-y-2">
 							<p>{professional.description}</p>
 							<p>
-								<b>Experience:</b> {professional.experience || "2+ years"}
+								<b>Address:</b> {professional.address}
 							</p>
 							<p>
-								<b>Location:</b> {professional.location || "Nearby"}
+								<b>Phone:</b> {professional.phoneNo}
 							</p>
 							<p>
-								<b>Price:</b> ₹
-								{professional?.sub_category?.[subCategory]?.price ??
-									professional?.price ??
-									"250"}
-								hour
+								<b>Service:</b> {subCategory}
 							</p>
-						</div>
-
-						<div className="flex justify-center gap-3 mt-5">
-							<button
-								onClick={closeProfile}
-								className="px-4 py-2 rounded-lg text-sm bg-gray-200 text-gray-700"
-							>
-								Close
-							</button>
-							<button
-								onClick={() => {
-									closeProfile();
-									openConfirm();
-								}}
-								className="px-4 py-2 rounded-lg text-sm bg-pink-500 text-white"
-							>
-								Book Now
-							</button>
+							<p>
+								<b>Details:</b> {details}
+							</p>
+							<p>
+								<b>Price:</b> ₹{price} / hour
+							</p>
 						</div>
 					</div>
 				</div>
