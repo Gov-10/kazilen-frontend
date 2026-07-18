@@ -7,8 +7,8 @@ import ProfessionalCard from "./components/ProfessionalCard";
 import { apiRequest } from "@/utils/api";
 
 export default function HomePage() {
-	const [category, setCategory] = useState("");
-	const [subCategory, setSubCategory] = useState("");
+	const [category, setCategory] = useState("Electrician");
+	const [subCategory, setSubCategory] = useState("consult");
 
 	const [workers, setWorkers] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
