@@ -24,7 +24,7 @@ const subCategories = [
 export default function SubCategoryTabs({ value, onChange }) {
   const [showAll, setShowAll] = useState(false)
 
-  const visibleCategories = subCategories.slice(0, 12)
+  const visibleCategories = subCategories.slice(0, 11)
 
   return (
     <>
