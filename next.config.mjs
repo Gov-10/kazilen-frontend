@@ -100,7 +100,9 @@ const runtimeCaching = [
 	},
 ];
 
-const withPWA = nextPWA({
+const pwaFn = typeof nextPWA === "function" ? nextPWA : nextPWA.default;
+
+const pwaConfig = {
 	dest: "public",
 	register: true,
 	skipWaiting: true,
@@ -111,12 +113,13 @@ const withPWA = nextPWA({
 	fallbacks: {
 		document: "/offline.html",
 	},
-});
+};
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
 	output: "standalone",
+	pwa: pwaConfig,
 	images: {
 		formats: ["image/avif", "image/webp"],
 		remotePatterns: [
@@ -163,12 +166,6 @@ const nextConfig = {
 					{
 						key: "Content-Security-Policy",
 						value:
-							"default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://api.mapbox.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com; img-src 'self' blob: data: https://www.google.co.in https://www.google.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://kazilen-prod-899213799870.asia-south1.run.app https://api.mapbox.com https://events.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.analytics.google.com; worker-src 'self' blob:;",
-					},
-					{
-						key: "Content-Security-Policy",
-						// Added http://localhost:8000 to connect-src
-						value:
 							"default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://api.mapbox.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com; img-src 'self' blob: data: https://www.google.co.in https://www.google.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://kazilen-prod-899213799870.asia-south1.run.app https://api.mapbox.com https://events.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.analytics.google.com; worker-src 'self' blob:;",
 					},
 				],
@@ -177,4 +174,13 @@ const nextConfig = {
 	},
 };
 
-export default withPWA(nextConfig);
+const buildConfig = () => {
+	if (typeof pwaFn !== "function") return nextConfig;
+	const res = pwaFn(pwaConfig);
+	if (typeof res === "function") {
+		return res(nextConfig);
+	}
+	return pwaFn(nextConfig);
+};
+
+export default buildConfig();
