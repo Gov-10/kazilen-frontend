@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, X } from "lucide-react";
+import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { bookService } from "../../lib/api";
 import { apiRequest } from "@/utils/api";
 import { getCookie } from "@/utils/customCookie";
+import ViewDetailsButton from "./ViewDetailsButton";
 
 export default function ProfessionalCard({ professional, subCategory }) {
 	const [showConfirm, setShowConfirm] = useState(false);
-	const [showProfile, setShowProfile] = useState(false);
 	const router = useRouter();
 
 	const price = professional.sub_categories?.price ?? 120;
@@ -65,12 +65,12 @@ export default function ProfessionalCard({ professional, subCategory }) {
 					</p>
 
 					<div className="flex justify-between items-end mt-3 gap-2">
-						<button
-							onClick={() => setShowProfile(true)}
-							className="px-3 py-1.5 text-sm rounded-lg bg-gray-100 text-gray-700"
-						>
-							View Profile
-						</button>
+						<ViewDetailsButton
+							professional={professional}
+							subCategory={subCategory}
+							details={details}
+							price={price}
+						/>
 						<div className="flex flex-col items-end">
 							<p className="text-sm font-semibold text-pink-600">
 								₹{price} / hour
@@ -115,39 +115,7 @@ export default function ProfessionalCard({ professional, subCategory }) {
 					</div>
 				</div>
 			)}
-
-			{/* Profile Popup */}
-			{showProfile && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-					<div className="bg-white rounded-2xl w-[90%] max-w-md p-6 relative">
-						<button
-							onClick={() => setShowProfile(false)}
-							className="absolute top-3 right-3"
-						>
-							<X className="w-5 h-5" />
-						</button>
-						<h2 className="text-lg font-semibold">{professional.name}</h2>
-						<div className="mt-4 text-sm text-gray-600 space-y-2">
-							<p>{professional.description}</p>
-							<p>
-								<b>Address:</b> {professional.address}
-							</p>
-							<p>
-								<b>Phone:</b> {professional.phoneNo}
-							</p>
-							<p>
-								<b>Service:</b> {subCategory}
-							</p>
-							<p>
-								<b>Details:</b> {details}
-							</p>
-							<p>
-								<b>Price:</b> ₹{price} / hour
-							</p>
-						</div>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }
+
