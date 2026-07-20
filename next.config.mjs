@@ -107,12 +107,7 @@ const pwaConfig = {
 	register: true,
 	skipWaiting: true,
 	disable: process.env.NODE_ENV === "development",
-	buildExcludes: [/app-build-manifest\.json$/],
-	publicExcludes: ["!subcategories/**/*"],
 	runtimeCaching,
-	fallbacks: {
-		document: "/offline.html",
-	},
 };
 
 /** @type {import('next').NextConfig} */
