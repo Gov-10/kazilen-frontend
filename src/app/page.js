@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import CategoryTabs from "./components/CategoryTabs";
 import SubCategoryTabs from "./components/SubCategoryTabs";
 import ProfessionalCard from "./components/ProfessionalCard";
+import ProfessionalCardSkeleton from "./components/skeletons/ProfessionalCardSkeleton";
 import { apiRequest } from "@/utils/api";
 
 export default function HomePage() {
@@ -57,6 +58,14 @@ export default function HomePage() {
 			<section className="px-4 mt-6 text-center text-gray-500">
 				{category && !subCategory && "Select a sub-category"}
 
+				{subCategory && isLoading && (
+					<div className="space-y-3">
+						{Array.from({ length: 4 }).map((_, index) => (
+							<ProfessionalCardSkeleton key={index} />
+						))}
+					</div>
+				)}
+
 				{subCategory && !isLoading && workers?.length === 0 && (
 					<p className="mt-4 text-gray-400">
 						No workers found for this category.
@@ -64,8 +73,8 @@ export default function HomePage() {
 				)}
 
 				{/* Only render the container and map if workers exist */}
-				{workers && workers.length > 0 && (
-					<div className="space-y-4">
+				{!isLoading && workers && workers.length > 0 && (
+					<div className="space-y-4 text-left">
 						{workers.map((worker) => (
 							<ProfessionalCard
 								key={worker.id}

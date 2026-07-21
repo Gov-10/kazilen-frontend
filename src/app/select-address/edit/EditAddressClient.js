@@ -20,9 +20,10 @@ export default function EditAddressClient() {
   });
 
   useEffect(() => {
+    const fields = ["fullName", "phone", "addressLine1", "addressLine2", "landmark", "pin", "city", "state"];
     const updated = {};
 
-    Object.keys(form).forEach((key) => {
+    fields.forEach((key) => {
       const val = searchParams.get(key);
       if (val) updated[key] = val;
     });

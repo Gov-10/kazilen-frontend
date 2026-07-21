@@ -5,7 +5,7 @@ import CategoryTabs from "./components/CategoryTabs";
 import SubCategoryTabs from "./components/SubCategoryTabs";
 import ProfessionalCard from "./components/PC";
 import { fetchServices } from "../lib/api";
-import ListSkeleton from "./components/skeletons/ListSkeleton";
+import ProfessionalCardSkeleton from "./components/skeletons/ProfessionalCardSkeleton";
 
 export default function Page() {
   const { data: pros, isLoading, isError, error } = useQuery({
@@ -18,7 +18,11 @@ export default function Page() {
       <h1 className="text-2xl font-bold mb-4">Pro Records</h1>
       
       {isLoading ? (
-        <ListSkeleton count={6} />
+        <div className="space-y-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ProfessionalCardSkeleton key={index} />
+          ))}
+        </div>
       ) : isError ? (
         <div className="text-red-500 bg-red-50 p-4 rounded-lg">
           Error loading pros: {error.message}. Please try again.

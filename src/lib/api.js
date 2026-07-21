@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/customer` : "https://kazilen-prod-899213799870.asia-south1.run.app/api/customer";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/customer` : "https://kazilen-prod-899213799870.asia-south1.run.app/api/customer";
 
 /**
  * Helper to handle fetch responses and generic error parsing

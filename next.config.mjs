@@ -114,7 +114,6 @@ const pwaConfig = {
 const nextConfig = {
 	reactStrictMode: true,
 	output: "standalone",
-	pwa: pwaConfig,
 	images: {
 		formats: ["image/avif", "image/webp"],
 		remotePatterns: [
